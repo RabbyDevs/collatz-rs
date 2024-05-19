@@ -1,28 +1,20 @@
-// use std::intrinsics::sqrtf64;
-use std::io;
+use std::{io, time::SystemTime};
 use std::str::FromStr;
-use num::bigint::BigUint;
-use num::FromPrimitive;
 use io::{stdout, stdin, Read, Write};
+use gmp::mpz::Mpz;
 
 fn new_parameter(ask_string: &str) -> String {
-    // clear_terminal_screen();
     println!("{}", ask_string);
     let mut parameter = String::new();
     
     io::stdin()
         .read_line(&mut parameter)
         .expect("Failed to process input.");
-    parameter
+    parameter.trim_end().to_string()
 }
 
-fn is_odd(num: &BigUint, one: &BigUint, two: &BigUint) -> bool {
-    let num = num.modpow(one, two);
-    if num == BigUint::from_u16(0).unwrap() {
-        return false
-    } else {
-        return true
-    }
+fn is_odd(num: &Mpz) -> bool {
+    num % 2u64 == Mpz::one()
 }
 
 fn pause() {
@@ -34,24 +26,21 @@ fn pause() {
 
 fn main() {
     println!("Collatz thing!");
-    let two = BigUint::from_u16(2).unwrap();
-    let three = BigUint::from_u16(3).unwrap();
-    let one = BigUint::from_u16(1).unwrap();
-    let mut num: BigUint = BigUint::from_str(new_parameter("What number do you want to calculate? ").as_str().trim_end()).unwrap();
-    let mut done = false;
-    while done == false {
-        let is_odd = is_odd(&num, &one, &two);
-        if is_odd == false {
-            num = num / &two;
-            println!("{:#?}", num);
-            if num.to_string() == "1".to_string() {done = true}
+    let two = 2u64;
+    let three = 3u64;
+    let one = 1u64;
+    
+    let mut num: Mpz = Mpz::from_str(&new_parameter("What number do you want to calculate? ")).unwrap();
+    let start_time = SystemTime::now();
+
+    while num > one.into() {
+        if is_odd(&num) {
+            num = num * three + one;
         } else {
-            num = num * &three;
-            num = num + &one;
-            println!("{:#?}", num);
-            if num.to_string() == "1".to_string() {done = true}
+            num = num / two;
         }
     }
-    println!("confirmed.");
-    pause()
+    
+    println!("confirmed, done in {:#?}.", SystemTime::now().duration_since(start_time).unwrap());
+    pause();
 }
