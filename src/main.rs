@@ -31,13 +31,18 @@ fn main() {
     let one = 1u64;
     
     let mut num: Mpz = Mpz::from_str(&new_parameter("What number do you want to calculate? ")).unwrap();
-    let start_time = SystemTime::now();
+    let print_nums = new_parameter("Should the numbers be printed? (may extend time by multiple factors.) Y/N"); 
+    let do_print_nums = print_nums.to_lowercase() == "y".to_string();
 
+    let start_time = SystemTime::now();
     while num > one.into() {
         if is_odd(&num) {
             num = num * three + one;
         } else {
             num = num / two;
+        }
+        if do_print_nums {
+            println!("{}", num)
         }
     }
     
